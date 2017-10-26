@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<menu>
+  <item>
+    <path>civicrm/admin/sync</path>
+    <page_callback>CRM_Sync_Form_Preferences</page_callback>
+    <title>Preferences</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
+  <item>
+    <path>civicrm/sync/send</path>
+    <page_callback>CRM_Sync_Page_Send</page_callback>
+    <title>Send</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
+</menu>
