@@ -47,6 +47,22 @@ class CRM_Sync_MessageTest extends \PHPUnit_Framework_TestCase implements  Headl
       $address1['city'] = 'Culemborg';
 
       $this->assertFalse(CRM_Sync_Message::addressSame($address2, $address1,'An extra field - does matter'));
+    }
+
+    public function testDiff(){
+
+      $old['organization_name']='Oud';
+      $new['organization_name']='New';
+
+      $this->assertEquals(CRM_Sync_Message::diff($old,$new),"<p> Differences between old and new are: </p><p>organization_name was Oud and becomes New</p>");
+      $new['organization_name']='';
+      $this->assertEquals(CRM_Sync_Message::diff($old,$new),"<p> Differences between old and new are: </p><p>organization_name was Oud and becomes </p>");
+      $new['organization_name']='Oud';
+      $this->assertEquals(CRM_Sync_Message::diff($old,$new),"<p> Differences between old and new are: </p>");
+      $new['organization_name']=null;
+      $this->assertEquals(CRM_Sync_Message::diff($old,$new),"<p> Differences between old and new are: </p><p>organization_name was Oud and becomes </p>");
+      $old['organization_name']=null;
+      $this->assertEquals(CRM_Sync_Message::diff($old,$new),"<p> Differences between old and new are: </p>");
 
     }
 

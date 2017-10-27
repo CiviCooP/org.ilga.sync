@@ -27,7 +27,7 @@ function civicrm_api3_sync_Send($message) {
   if($returnValues['is_error']){
     throw new API_Exception($returnValues['error_message']);
   } else {
-    $obs =  new CRM_Sync_Observer();
+    $obs = new CRM_Sync_Observer();
     $obs->untag($contactId);
     return civicrm_api3_create_success($returnValues, $message, 'Sync', 'send');
   }

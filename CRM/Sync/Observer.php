@@ -8,8 +8,30 @@
  *  @license AGPL-3.0
  *
  */
-
 class CRM_Sync_Observer {
+
+  private static $_cache;
+
+  public static function cache() {
+    if (!self::$_cache) {
+      self::$_cache = array(
+        'contact' => array(),
+        'email'   => array(),
+        'website' => array(),
+      );
+    }
+    return self::$_cache;
+  }
+
+  public function storeEmail($id,$email){
+    $cache = CRM_Sync_Observer::cache();
+    $cache['email'][$id]=$email;
+  }
+
+  public function emailChanged($id,$email){
+    $cache = CRM_Sync_Observer::cache();
+    return $cache['email'][$id]==$email;
+  }
 
   /**
    * @param $contactId
@@ -30,14 +52,14 @@ class CRM_Sync_Observer {
    */
   public function untag($contactId) {
     if (!empty($this->tagged($contactId))) {
-    $config = CRM_Sync_Config::singleton();
-    civicrm_api3('EntityTag', 'delete', [
-      'entity_id' => $contactId,
-      'entity_table' => "civicrm_contact",
-      'tag_id' => $config->getSyncTagid(),
-    ]);
+      $config = CRM_Sync_Config::singleton();
+      civicrm_api3('EntityTag', 'delete', [
+        'entity_id' => $contactId,
+        'entity_table' => "civicrm_contact",
+        'tag_id' => $config->getSyncTagid(),
+      ]);
+    }
   }
-}
 
   public function tagged($contactId){
     $config = CRM_Sync_Config::singleton();
@@ -52,6 +74,7 @@ class CRM_Sync_Observer {
   }
 
   /**
+   * Check if a contact is changed
    * @param $contactId
    */
   public function observeContact($contactId){

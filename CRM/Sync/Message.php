@@ -15,7 +15,14 @@ class CRM_Sync_Message {
     'city',
     'postal_code',
     'country_id'
+  ];
 
+  static $_messagefields = [
+    'organization_name',
+    'legal_name',
+    'nick_name',
+    'email',
+    'website'
   ];
 
   private static function completeAndRestrict($params,$fields) {
@@ -36,7 +43,7 @@ class CRM_Sync_Message {
   }
 
   public static function messageSame($message1,$message2){
-    return CRM_Sync_Message::arraySame($message1,$message2,array());
+    return CRM_Sync_Message::arraySame($message1,$message2,CRM_Sync_Message::$_messagefields);
   }
 
   private static function arraySame($address1,$address2,$fields) {
@@ -51,7 +58,7 @@ class CRM_Sync_Message {
       $result = TRUE;
       $la1 = CRM_Sync_Message::completeAndRestrict($address1, $fields);
       $la2 = CRM_Sync_Message::completeAndRestrict($address2, $fields);
-      foreach(CRM_Sync_Message::$_addressfields as $field){
+      foreach($fields as $field){
         if($la1[$field]!=$la2[$field]){
           $result = FALSE;
         }
@@ -269,6 +276,8 @@ class CRM_Sync_Message {
   }
 
 
+
+
   /**
    * @param $contactId
    * @param $destination
@@ -278,6 +287,7 @@ class CRM_Sync_Message {
   static public function construct($contactId, $destination) {
 
     $config = CRM_Sync_Config::singleton();
+    $region = $config->get('ilgasync_destination')=='region';
     if(!in_array($destination,['hq','region'])){
        throw Exception("Cannot construct a message for unknown destination ".$destination);
     }
@@ -295,20 +305,16 @@ class CRM_Sync_Message {
       'id' => $contactId,
     ));
 
-    $message = $message+CRM_Utils_Array::subset($result,[
-        'organization_name',
-        'legal_name',
-        'nick_name',
-        'preferred_language',
-        'contact_type',
-       // 'contact_sub_type',
-        'is_opt_out'
-      ]);
+    $message = $message+CRM_Utils_Array::subset($result,CRM_Sync_Message::$_messagefields);
+    if($region){
+      $message['membertype'] = implode(',',$result['contact_sub_type']);
+    } else {
+      $message['membertype'] = CRM_Sync_Utils_DB::findMembershipType($contactId);
+    }
 
     $message['email'] = CRM_Sync_Message::readEmail($contactId)['email'];
-    $message['phone'] = CRM_Sync_Message::readPhone($contactId)['phone'];
     $message['website']  = CRM_Sync_Message::readWebsite($contactId,$config->get('ilgasync_default_website'))['url'];
-    $message['facebook'] =  CRM_Sync_Message::readWebsite($contactId,$config->get('ilgasync_default_facebook'))['url'];
+
     $address = CRM_Sync_Message::readAddress($contactId);
     if($address) {
       $message['address'] = CRM_Sync_Message::completeAndRestrict($address, CRM_Sync_Message::$_addressfields);
@@ -322,44 +328,58 @@ class CRM_Sync_Message {
    *
    * @param $message
    */
-  static public function process($message){
+  static public function process($message) {
 
     $config = CRM_Sync_Config::singleton();
 
-    if($message['destination']=='hq'){
+    if ($message['destination'] == 'hq') {
       // the contact id of the head quarters are the ilga identifier
       $contactId = $message['ilga_identifier'];
-    } elseif($message['destination']=='region') {
+    }
+    elseif ($message['destination'] == 'region') {
       // in the region the contact id must be found with the ilga identifier.
       $contactId = CRM_Sync_Utils_DB::findContactId($message['ilga_identifier']);
-    } else {
+    }
+    else {
       throw new Exception ("Message does not have a valid destination (hq or region)");
     }
 
-    $contactParams = array();
-    if($contactId) {
-      $contactParams['id'] = $contactId;
+    $localMessage = CRM_Sync_Message::construct($contactId, $message['destination']);
+    if (CRM_Sync_Message::messageSame($message, $localMessage)) {
+      //  not changes between local and remote - so nothing to do
     } else {
-      $contactParams['custom_'.$config->getIlgaIdentifierCustomFieldId()] = $message['ilga_identifier'] ;
+      $contactParams = [];
+      if ($contactId) {
+        $contactParams['id'] = $contactId;
+      }
+      else {
+        $contactParams['custom_' . $config->getIlgaIdentifierCustomFieldId()] = $message['ilga_identifier'];
+      }
+      $contactParams = $contactParams + CRM_Utils_Array::subset($message, [
+          'organization_name',
+          'legal_name',
+          'nick_name',
+          'preferred_language',
+          'contact_type',
+          'contact_sub_type',
+          'is_opt_out',
+        ]);
+
+      $result = civicrm_api3('contact', 'create', $contactParams);
+      $contactId = $result['id'];
+
+      CRM_Sync_Message::writeWebsite($contactId, $config->get('ilgasync_default_website'), $message['website']);
+      CRM_Sync_Message::writeEmail($contactId, $message['email']);
+      CRM_Sync_Message::writeAddress($contactId, $message['address']);
+
+      civicrm_api3('activity','create',array(
+        'source_contact_id' => $contactId,
+        'status_id' => 'Completed',
+        'subject'   => 'Synchronized from',
+        'activity_type_id' =>  'Synchronised',
+        'details' => CRM_Sync_Message::diff($localMessage,$message),
+      ));
     }
-    $contactParams = $contactParams + CRM_Utils_Array::subset($message,[
-      'organization_name',
-      'legal_name',
-      'nick_name',
-      'preferred_language',
-      'contact_type',
-      'contact_sub_type',
-      'is_opt_out'
-    ]);
-
-    $result = civicrm_api3('contact','create',$contactParams);
-    $contactId = $result['id'];
-
-    CRM_Sync_Message::writeWebsite($contactId,$config->get('ilgasync_default_facebook'),$message['facebook']);
-    CRM_Sync_Message::writeWebsite($contactId,$config->get('ilgasync_default_website'),$message['website']);
-    CRM_Sync_Message::writeEmail($contactId,$message['email']);
-    CRM_Sync_Message::writePhone($contactId,$message['phone']);
-    CRM_Sync_Message::writeAddress($contactId,$message['address']);
 
   }
 
@@ -408,6 +428,16 @@ class CRM_Sync_Message {
     $result['is_opt_out'] = 'Europe/World?';
     $result['preferred_language'] = 'Europe/World?';
     $result['address']= isset($region['address'])? $region['address'] : $hq['address'];
+    return $result;
+  }
+
+  public static function diff($old,$new){
+    $result = '<p> Differences between old and new are: </p>';
+    foreach($old as $key=>$field){
+      if($old[$key]!=$new[$key]){
+        $result .= "<p>$key was $old[$key] and becomes $new[$key]</p>";
+      }
+    }
     return $result;
   }
 

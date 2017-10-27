@@ -31,6 +31,9 @@ class CRM_Sync_Upgrader extends CRM_Sync_Upgrader_Base {
     $installOptionGroup->create($params);
     $installTag = new CRM_Sync_Install_Tag();
     $installTag->create('Sync');
+
+    $installActivityType = new CRM_Sync_Install_ActivityType();
+    $installActivityType->create();
   }
 
   /**
@@ -73,6 +76,9 @@ class CRM_Sync_Upgrader extends CRM_Sync_Upgrader_Base {
     $this->ctx->log->info('Installing tags');
     $installTag = new CRM_Sync_Install_Tag();
     $installTag->create('Sync');
+
+    $installActivityType = new CRM_Sync_Install_ActivityType();
+    $installActivityType->create();
     return TRUE;
   } // */
 

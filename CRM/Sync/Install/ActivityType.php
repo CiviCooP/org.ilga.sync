@@ -16,6 +16,7 @@ class CRM_Sync_Install_ActivityType {
     $params['name'] = 'Synchronised';
     $params['label'] = 'Synchronised';
     $params['option_group_id'] = "activity_type";
+    $params['is_active'] = 1;
 
     try {
       $optionValueId = civicrm_api3('OptionValue', 'getvalue', [

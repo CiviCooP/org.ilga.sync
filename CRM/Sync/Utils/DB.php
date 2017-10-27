@@ -84,4 +84,25 @@ class CRM_Sync_Utils_DB {
     }
   }
 
+  public static function findMembershipType($contactId){
+    $sql = "select 1 from civicrm_membership m
+            join civicrm_membership_type t on (m.membership_type_id = t.id)
+            where m.contact_id = %1 and t.name like %2";
+
+    $result = array();
+    if(CRM_Core_DAO::singleValueQuery($sql,array(
+      1 => array($contactId,'Integer'),
+      2 => array('Full Membership%','String')
+    ))){
+      $result[] = 'Member organisation';
+    }
+    if(CRM_Core_DAO::singleValueQuery($sql,array(
+      1 => array($contactId,'Integer'),
+      2 => array('Associate membership','String')
+    ))){
+      $result[] = 'Associated members';
+    }
+    return implode(',',$result);
+  }
+
 }
