@@ -94,13 +94,13 @@ class CRM_Sync_Utils_DB {
       1 => array($contactId,'Integer'),
       2 => array('Full Membership%','String')
     ))){
-      $result[] = 'Member organisation';
+      $result[] = 'Member_organisation';
     }
     if(CRM_Core_DAO::singleValueQuery($sql,array(
       1 => array($contactId,'Integer'),
       2 => array('Associate membership','String')
     ))){
-      $result[] = 'Associated members';
+      $result[] = 'Associated_members';
     }
     return implode(',',$result);
   }

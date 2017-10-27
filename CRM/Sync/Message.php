@@ -22,7 +22,8 @@ class CRM_Sync_Message {
     'legal_name',
     'nick_name',
     'email',
-    'website'
+    'website',
+    'address'
   ];
 
   private static function completeAndRestrict($params,$fields) {
@@ -198,7 +199,7 @@ class CRM_Sync_Message {
 
   public static function writeEmail($contactId,$email) {
     $config = CRM_Sync_Config::singleton();
-    $local = CRM_Sync_Message::readEmail($contactId, $email);
+    $local = CRM_Sync_Message::readEmail($contactId);
     if ($local) {
       if ($email) {
         if ($email != $local['email']) {
@@ -216,7 +217,7 @@ class CRM_Sync_Message {
       }
     }
     else {
-      if ($email) { // no local and and phone - go create
+      if ($email) { // no local - go create
         civicrm_api3('email', 'create', [
           'contact_id' => $contactId,
           'email' => $email,
@@ -331,6 +332,7 @@ class CRM_Sync_Message {
   static public function process($message) {
 
     $config = CRM_Sync_Config::singleton();
+    $region = $config->get('ilgasync_destination')=='region';
 
     if ($message['destination'] == 'hq') {
       // the contact id of the head quarters are the ilga identifier
@@ -355,6 +357,7 @@ class CRM_Sync_Message {
       else {
         $contactParams['custom_' . $config->getIlgaIdentifierCustomFieldId()] = $message['ilga_identifier'];
       }
+
       $contactParams = $contactParams + CRM_Utils_Array::subset($message, [
           'organization_name',
           'legal_name',
@@ -364,6 +367,10 @@ class CRM_Sync_Message {
           'contact_sub_type',
           'is_opt_out',
         ]);
+
+      if($region){
+        $contactParams['contact_sub_type']=explode(',',$message['membertype']);
+      }
 
       $result = civicrm_api3('contact', 'create', $contactParams);
       $contactId = $result['id'];
@@ -431,13 +438,20 @@ class CRM_Sync_Message {
     return $result;
   }
 
-  public static function diff($old,$new){
-    $result = '<p> Differences between old and new are: </p>';
-    foreach($old as $key=>$field){
-      if($old[$key]!=$new[$key]){
-        $result .= "<p>$key was $old[$key] and becomes $new[$key]</p>";
+
+  public static function diff($old, $new) {
+    $result = "";
+    foreach ($old as $key => $field) {
+      if (is_array($old[$key]) && is_array($new[$key])) {
+        $result .= CRM_Sync_Message::diff($old[$key], $new[$key]);
       }
-    }
+      else {
+
+        if ($old[$key] != $new[$key]) {
+          $result .= "<p>$key was $old[$key] and becomes $new[$key]</p>";
+        }
+      }
+    };
     return $result;
   }
 

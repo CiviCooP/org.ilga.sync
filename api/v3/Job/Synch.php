@@ -43,7 +43,6 @@ function civicrm_api3_job_Synch($params) {
 
     $localContact  = CRM_Sync_Message::construct($dao->contact_id, $localDestination);
     $localContact['destination']  = $remoteDestination ;
-    print_r($localContact);
     $result = civicrm_api3('Sync','send',$localContact);
   }
 
