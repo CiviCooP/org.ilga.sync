@@ -320,12 +320,18 @@ class CRM_Sync_Message {
     $region = $config->get('ilgasync_destination')=='region';
     if($region){
       $contactId = CRM_Sync_Utils_DB::findContactId($message['ilga_identifier']);
+      // if ilga id cannot be found it is a new record
+      $new = empty($contactId);
     } else {
       $contactId = $message['ilga_identifier'];
+      $new = FALSE;
     }
 
-    $localMessage = CRM_Sync_Message::construct($contactId);
-    if (CRM_Sync_Message::messageSame($message, $localMessage)) {
+    if($contactId){
+      $localMessage = CRM_Sync_Message::construct($contactId);
+    }
+
+    if (!$new && CRM_Sync_Message::messageSame($message, $localMessage)) {
       //  not changes between local and remote - so nothing to do
     } else {
       $contactParams = [];
@@ -334,6 +340,7 @@ class CRM_Sync_Message {
       }
       else {
         $contactParams['custom_' . $config->getIlgaIdentifierCustomFieldId()] = $message['ilga_identifier'];
+        $contactParams['contact_type'] = 'Organization';
       }
 
       $contactParams = $contactParams + CRM_Utils_Array::subset($message, [
@@ -341,7 +348,6 @@ class CRM_Sync_Message {
           'legal_name',
           'nick_name',
           'preferred_language',
-          'contact_type',
           'is_opt_out',
         ]);
 
