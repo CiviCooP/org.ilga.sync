@@ -369,9 +369,9 @@ class CRM_Sync_Message {
       civicrm_api3('activity','create',array(
         'source_contact_id' => $contactId,
         'status_id' => 'Completed',
-        'subject'   => 'Synchronized from',
+        'subject'   => $new?'Inserted':'Updated',
         'activity_type_id' =>  'Synchronised',
-        'details' => CRM_Sync_Message::diff($localMessage,$message),
+        'details' => $new?'New Contact Created ':CRM_Sync_Message::diff($localMessage,$message),
       ));
     }
 
@@ -425,7 +425,6 @@ class CRM_Sync_Message {
         $result .= CRM_Sync_Message::diff($old[$key], $new[$key]);
       }
       else {
-
         if ($old[$key] != $new[$key]) {
           $result .= "<p>$key was $old[$key] and becomes $new[$key]</p>";
         }

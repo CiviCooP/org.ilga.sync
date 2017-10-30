@@ -175,4 +175,7 @@ function sync_civicrm_post($op, $objectName, $objectId, &$objectRef){
   if($objectName=='Organization'&&$op=='edit') {
     $obs->observeContact($objectId);
   }
+  if($objectName=='Email'&&$op=='edit') {
+    $obs->observeEmail($objectRef);
+  }
 }

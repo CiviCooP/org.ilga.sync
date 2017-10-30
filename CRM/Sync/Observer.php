@@ -89,10 +89,20 @@ class CRM_Sync_Observer {
   }
 
   /**
+   * if a email is changed it might be send over.
+   * if
+   *    - it is really changed
+   *    - it connected to a contact that must be synchronized
+   *  if it is changed the connected contact must be marked with
+   *  tag
+   *
    * @param $emailId
    */
-  public function observeEmail($emailId){
-
+  public function observeEmail($emailObject){
+    $contactId = $emailObject->contact_id;
+    if($this->subscribed($contactId)) {
+      $this->tag($emailObject->contact_id);
+    }
   }
 
   /**
@@ -101,6 +111,24 @@ class CRM_Sync_Observer {
   public function observeWebsite($websiteId){
 
   }
+
+  public function subscribed($contactId){
+    $config = CRM_Sync_Config::singleton();
+    $region = $config->get('ilgasync_destination')=='region';
+    if($region){
+      if(CRM_Sync_Utils_DB::findIlgaId($contactId)){
+        return TRUE;
+      } else {
+        return FALSE;
+      }
+    } else {
+      $regionId = CRM_Sync_Utils_DB::findRegionId($contactId);
+      return $regionId == $config->get('ilgasync_region');
+    }
+
+  }
+
+
 
 
 

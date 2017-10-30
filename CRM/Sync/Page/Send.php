@@ -20,7 +20,7 @@ class CRM_Sync_Page_Send extends CRM_Core_Page {
     switch($syncaction){
 
       case 'send' :
-        $result = civicrm_api3('Sync','send',['contact_id' => $contactId]);
+        $result = civicrm_api3('Sync','send',array('contact_id' => $contactId));
         break;
 
       case 'retrieve' :

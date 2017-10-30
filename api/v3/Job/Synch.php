@@ -24,7 +24,6 @@ function _civicrm_api3_job_Synch_spec(&$spec) {
 function civicrm_api3_job_Synch($params) {
 
   $config = CRM_Sync_Config::singleton();
-  $region = $config->get('ilgasync_destination')=='region';
 
   $limit = isset($params['limit']) ? $params['limit'] : 30;
   $sql = "select entity_id AS contact_id from civicrm_entity_tag 
@@ -37,10 +36,23 @@ function civicrm_api3_job_Synch($params) {
      2 => array($limit,'Integer')
   ));
 
-  while($dao->fetch()){
-    $message  = CRM_Sync_Message::construct($dao->contact_id);
-    $message['ilga_identifier'] = $region?CRM_Sync_Utils_DB::findIlgaId($dao->contactId):$dao->contact_id;
-    $result = civicrm_api3('Sync','send',$message);
-  }
+  $count = 0;
+  $errorcount = 0;
+  $errors = array();
 
+  while($dao->fetch()){
+    $params = array();
+    $params['contact_id']= $dao->contact_id;
+    $result = civicrm_api3('Sync','send',$params);
+    if($result['is_error']){
+      $errors[$dao->contact_id] = $result;
+      $errorcount++;
+    }
+    $count++;
+  }
+  return civicrm_api3_create_success(array
+    ('count' => $count,
+     'errorcount' => $errorcount,
+     'errors' => $errors),
+    'Did run a synchronize job', 'Job', 'sync');
 }
