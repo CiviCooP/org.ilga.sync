@@ -342,12 +342,15 @@ class CRM_Sync_Message {
           'nick_name',
           'preferred_language',
           'contact_type',
-          'contact_sub_type',
           'is_opt_out',
         ]);
 
       if($region){
-        $contactParams['contact_sub_type']=explode(',',$message['membertype']);
+        if(empty($message['membertype'])){
+          $contactParams['contact_sub_type']= array();
+        } else {
+          $contactParams['contact_sub_type'] = explode(',', $message['membertype']);
+        }
       }
 
       $result = civicrm_api3('contact', 'create', $contactParams);
