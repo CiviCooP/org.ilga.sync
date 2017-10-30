@@ -205,7 +205,7 @@ class CRM_Sync_Message {
         if ($email != $local['email']) {
           civicrm_api3('email', 'create', [
             'id' => $local['id'],
-            'phone' => $email
+            'email' => $email
           ]);
         }
         else {
