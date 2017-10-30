@@ -8,6 +8,7 @@
  * @see http://wiki.civicrm.org/confluence/display/CRMDOC/API+Architecture+Standards
  */
 function _civicrm_api3_sync_Send_spec(&$spec) {
+  $spec['contact_id']['api.required'] = 1;
 
 }
 
@@ -24,7 +25,7 @@ function civicrm_api3_sync_Send($params) {
 
   $contactId = $params['contact_id'];
   $message = CRM_Sync_Message::construct($contactId);
-  if($params['merge']){
+  if(isset($params['merge'])&&$params['merge']){
     $callparams['merge'] = 1;
   }
   $callparams['payload'] = json_encode($message);

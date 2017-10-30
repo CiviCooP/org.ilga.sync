@@ -36,12 +36,6 @@ function civicrm_api3_sync_Receive($params) {
     $region = $config->get('ilgasync_destination')=='region';
     if($region){
       $contactId = CRM_Sync_Utils_DB::findContactId($message['ilga_identifier']);
-    } else {
-      $contactId = $message['ilga_identifier'];
-    }
-
-    if($region){
-      $contactId = CRM_Sync_Utils_DB::findContactId($message['ilga_identifier']);
       $local = CRM_Sync_Message::construct($contactId);
       // this is the region - so the incoming message comes
       // from the hq

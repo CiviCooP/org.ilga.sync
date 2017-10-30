@@ -52,9 +52,10 @@ class CRM_Sync_Utils_DB {
             FROM   {$config->getSynchronizationCustomGroupTableName()}
             WHERE  {$config->getIlgaIdentifierCustomFieldColumnName()} = %1";
 
-      return CRM_Core_DAO::singleValueQuery($sql, [
+      $result =  CRM_Core_DAO::singleValueQuery($sql, [
         '1' => [$ilgaId, 'Integer']
       ]);
+      return $result;
     }
   }
 
