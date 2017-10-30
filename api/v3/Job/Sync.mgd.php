@@ -6,7 +6,7 @@
 return array (
   0 => 
   array (
-    'name' => 'Cron:Job.Synch',
+    'name' => 'Cron:Job.Sync',
     'entity' => 'Job',
     'params' => 
     array (
@@ -15,7 +15,7 @@ return array (
       'description' => 'Call Job.Synch API',
       'run_frequency' => 'Hourly',
       'api_entity' => 'Job',
-      'api_action' => 'Synch',
+      'api_action' => 'Sync',
       'parameters' => '',
     ),
   ),

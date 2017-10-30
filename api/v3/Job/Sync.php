@@ -8,7 +8,7 @@
  * @return void
  * @see http://wiki.civicrm.org/confluence/display/CRMDOC/API+Architecture+Standards
  */
-function _civicrm_api3_job_Synch_spec(&$spec) {
+function _civicrm_api3_job_Sync_spec(&$spec) {
 
 }
 
@@ -21,7 +21,7 @@ function _civicrm_api3_job_Synch_spec(&$spec) {
  * @see civicrm_api3_create_error
  * @throws API_Exception
  */
-function civicrm_api3_job_Synch($params) {
+function civicrm_api3_job_Sync($params) {
 
   $config = CRM_Sync_Config::singleton();
 
