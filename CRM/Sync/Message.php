@@ -160,7 +160,7 @@ class CRM_Sync_Message {
         }
       }
       else { // phone is empty so delete
-        civicrm_apir('phone', 'delete', ['id' => $local['id']]);
+        civicrm_api3('phone', 'delete', ['id' => $local['id']]);
       }
     }
     else {
@@ -276,37 +276,23 @@ class CRM_Sync_Message {
     }
   }
 
-
-
-
   /**
    * @param $contactId
    * @param $destination
    *
    * @return array
    */
-  static public function construct($contactId, $destination) {
+  static public function construct($contactId) {
 
     $config = CRM_Sync_Config::singleton();
     $region = $config->get('ilgasync_destination')=='region';
-    if(!in_array($destination,['hq','region'])){
-       throw Exception("Cannot construct a message for unknown destination ".$destination);
-    }
 
     $message=array();
-    $message['destination']=$destination;
+    $message['ilga_identifier'] = $region?CRM_Sync_Utils_DB::findIlgaId($contactId):$contactId;
 
-    if($destination=='hq'){
-      $message['ilga_identifier']=$contactId;
-    } else {
-      $message['ilga_identifier']=CRM_Sync_Utils_DB::findIlgaId($contactId);
-    }
-
-    $result = civicrm_api3('contact','getsingle',array(
-      'id' => $contactId,
-    ));
-
+    $result = civicrm_api3('contact','getsingle',array( 'id' => $contactId));
     $message = $message+CRM_Utils_Array::subset($result,CRM_Sync_Message::$_messagefields);
+
     if($region){
       $message['membertype'] = implode(',',$result['contact_sub_type']);
     } else {
@@ -315,7 +301,6 @@ class CRM_Sync_Message {
 
     $message['email'] = CRM_Sync_Message::readEmail($contactId)['email'];
     $message['website']  = CRM_Sync_Message::readWebsite($contactId,$config->get('ilgasync_default_website'))['url'];
-
     $address = CRM_Sync_Message::readAddress($contactId);
     if($address) {
       $message['address'] = CRM_Sync_Message::completeAndRestrict($address, CRM_Sync_Message::$_addressfields);
@@ -333,20 +318,13 @@ class CRM_Sync_Message {
 
     $config = CRM_Sync_Config::singleton();
     $region = $config->get('ilgasync_destination')=='region';
-
-    if ($message['destination'] == 'hq') {
-      // the contact id of the head quarters are the ilga identifier
+    if($region){
+      $contactId = CRM_Sync_Utils_DB::findContactId($message['ilga_identifier']);
+    } else {
       $contactId = $message['ilga_identifier'];
     }
-    elseif ($message['destination'] == 'region') {
-      // in the region the contact id must be found with the ilga identifier.
-      $contactId = CRM_Sync_Utils_DB::findContactId($message['ilga_identifier']);
-    }
-    else {
-      throw new Exception ("Message does not have a valid destination (hq or region)");
-    }
 
-    $localMessage = CRM_Sync_Message::construct($contactId, $message['destination']);
+    $localMessage = CRM_Sync_Message::construct($contactId);
     if (CRM_Sync_Message::messageSame($message, $localMessage)) {
       //  not changes between local and remote - so nothing to do
     } else {
@@ -396,16 +374,13 @@ class CRM_Sync_Message {
    * @return mixed
    * @throws \Exception
    */
-  static public function retrieve($contactId,$destination){
+  static public function retrieve($contactId){
 
-    if($destination=='hq'){
-      $ilgaId = CRM_Sync_Utils_DB::findIlgaId($contactId);
-    } else {
-      $ilgaId=$contactId;
-    }
+    $config = CRM_Sync_Config::singleton();
+    $region = $config->get('ilgasync_destination')=='region';
+    $ilgaId = $region?CRM_Sync_Utils_DB::findIlgaId($contactId):$contactId;
 
     $params =[
-      'destination' => $destination,
       'ilga_identifier' => $ilgaId
     ];
 
@@ -424,20 +399,15 @@ class CRM_Sync_Message {
 
   static public function merge($hq,$region){
     $result = array();
-    $result['ilga_identifier'] = $region['ilga_identifier'];
+    $result['ilga_identifier']  =  $region['ilga_identifier']?$region['ilga_identifier']:$hq['ilga_identifier'];
     $result['organization_name'] = $region['organization_name'];
-    $result['legal_name'] = $region['legal_name'];
-    $result['nick_name']  = $region['nick_name'];
+    $result['nick_name']    = $region['nick_name'];
+    $result['membertype'] = $hq['membertype'];
     $result['email'] = $hq['email'];
     $result['website'] = $region['website'];
-    $result['phone'] = 'Europe/World?';
-    $result['facebook'] = 'Europe/World?';
-    $result['is_opt_out'] = 'Europe/World?';
-    $result['preferred_language'] = 'Europe/World?';
     $result['address']= isset($region['address'])? $region['address'] : $hq['address'];
     return $result;
   }
-
 
   public static function diff($old, $new) {
     $result = "";

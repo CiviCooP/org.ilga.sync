@@ -20,10 +20,15 @@ function _civicrm_api3_sync_Send_spec(&$spec) {
  * @see civicrm_api3_create_error
  * @throws API_Exception
  */
-function civicrm_api3_sync_Send($message) {
-  $params['payload'] = json_encode($message);
-  $contactId = CRM_Sync_Utils_DB::findLocalId($message['ilga_identifier']);
-  $returnValues = CRM_Sync_Utils_Rest::call('receive',$params);
+function civicrm_api3_sync_Send($params) {
+
+  $contactId = $params['contact_id'];
+  $message = CRM_Sync_Message::construct($contactId);
+  if($params['merge']){
+    $callparams['merge'] = 1;
+  }
+  $callparams['payload'] = json_encode($message);
+  $returnValues = CRM_Sync_Utils_Rest::call('receive',$callparams);
   if($returnValues['is_error']){
     throw new API_Exception($returnValues['error_message']);
   } else {

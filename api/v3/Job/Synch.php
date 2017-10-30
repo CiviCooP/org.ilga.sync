@@ -24,11 +24,9 @@ function _civicrm_api3_job_Synch_spec(&$spec) {
 function civicrm_api3_job_Synch($params) {
 
   $config = CRM_Sync_Config::singleton();
+  $region = $config->get('ilgasync_destination')=='region';
 
   $limit = isset($params['limit']) ? $params['limit'] : 30;
-  $localDestination = $config->get('ilgasync_destination');
-  $remoteDestination = $localDestination=='hq'? 'region' : 'hq';
-
   $sql = "select entity_id AS contact_id from civicrm_entity_tag 
           where  entity_table = 'civicrm_contact' 
           and    tag_id = %1
@@ -40,11 +38,9 @@ function civicrm_api3_job_Synch($params) {
   ));
 
   while($dao->fetch()){
-
-    $localContact  = CRM_Sync_Message::construct($dao->contact_id, $localDestination);
-    $localContact['destination']  = $remoteDestination ;
-    $result = civicrm_api3('Sync','send',$localContact);
+    $message  = CRM_Sync_Message::construct($dao->contact_id);
+    $message['ilga_identifier'] = $region?CRM_Sync_Utils_DB::findIlgaId($dao->contactId):$dao->contact_id;
+    $result = civicrm_api3('Sync','send',$message);
   }
-
 
 }
