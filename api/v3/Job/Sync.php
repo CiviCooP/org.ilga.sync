@@ -53,7 +53,7 @@ function civicrm_api3_job_Sync($params) {
     } catch (Exception $ex)
     {
       $result = array ('is_error' => 1,
-        'exception' => $ex);
+        'error_message' => $ex['error_message']);
     }
     if($result['is_error']){
       $errors[$dao->contact_id] = $result;

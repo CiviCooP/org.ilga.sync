@@ -99,10 +99,10 @@ class CRM_Sync_Observer {
    * @param $emailId
    */
   public function observeEmail($emailObject){
-    $contactId = $emailObject->contact_id;
-    if($this->subscribed($contactId)) {
-      $this->tag($contactId);
-    }
+  //  $contactId = $emailObject->contact_id;
+  //  if($this->subscribed($contactId)) {
+  //    $this->tag($contactId);
+  //  }
   }
 
   /**
