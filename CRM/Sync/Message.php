@@ -294,7 +294,9 @@ class CRM_Sync_Message {
     $message = $message+CRM_Utils_Array::subset($result,CRM_Sync_Message::$_messagefields);
 
     if($region){
-      $message['membertype'] = implode(',',$result['contact_sub_type']);
+      if(is_array($result['contact_sub_type'])) {
+        $message['membertype'] = implode(',', $result['contact_sub_type']);
+      }
     } else {
       $message['membertype'] = CRM_Sync_Utils_DB::findMembershipType($contactId);
     }
