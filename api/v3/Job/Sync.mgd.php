@@ -11,8 +11,8 @@ return array (
     'params' => 
     array (
       'version' => 3,
-      'name' => 'Call Job.Synch API',
-      'description' => 'Call Job.Synch API',
+      'name' => 'Call Job.Sync API',
+      'description' => 'Call Job.Sync API',
       'run_frequency' => 'Hourly',
       'api_entity' => 'Job',
       'api_action' => 'Sync',

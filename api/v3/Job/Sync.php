@@ -23,8 +23,12 @@ function _civicrm_api3_job_Sync_spec(&$spec) {
  */
 function civicrm_api3_job_Sync($params) {
 
+  // It is batch job, so it can run long
+  set_time_limit(0);
+
   $config = CRM_Sync_Config::singleton();
 
+  $merge = isset($params['merge']) ? $params['merge'] : 0;
   $limit = isset($params['limit']) ? $params['limit'] : 30;
   $sql = "select entity_id AS contact_id from civicrm_entity_tag 
           where  entity_table = 'civicrm_contact' 
@@ -43,6 +47,7 @@ function civicrm_api3_job_Sync($params) {
   while($dao->fetch()){
     $params = array();
     $params['contact_id']= $dao->contact_id;
+    $params['merge']= $merge;
     $result = civicrm_api3('Sync','send',$params);
     if($result['is_error']){
       $errors[$dao->contact_id] = $result;

@@ -82,4 +82,17 @@ class CRM_Sync_Upgrader extends CRM_Sync_Upgrader_Base {
     return TRUE;
   } // */
 
+  public function upgrade_1002(){
+    $params =  array (
+      'name' => 'Call Job.Sync API',
+      'description' => 'Call Job.Sync API',
+      'run_frequency' => 'Hourly',
+      'api_entity' => 'Job',
+      'api_action' => 'Sync',
+      'parameters' => '',
+    );
+    civicrm_api3('Job','create',$params);
+    return TRUE;
+  }
+
 }
