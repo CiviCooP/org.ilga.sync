@@ -1,8 +1,6 @@
 <?php
 /**
- *
  *  Observers changes and marks them when the record must be send.
- *
  *  @author Klaas Eikelbooml (CiviCooP) <klaas.eikelboom@civicoop.org>
  *  @date 25-10-17 10:53
  *  @license AGPL-3.0
