@@ -48,7 +48,13 @@ function civicrm_api3_job_Sync($params) {
     $params = array();
     $params['contact_id']= $dao->contact_id;
     $params['merge']= $merge;
-    $result = civicrm_api3('Sync','send',$params);
+    try {
+      $result = civicrm_api3('Sync', 'send', $params);
+    } catch (Exception $ex)
+    {
+      $result = array ('is_error' => 1,
+        'exception' => $ex);
+    }
     if($result['is_error']){
       $errors[$dao->contact_id] = $result;
       $errorcount++;
