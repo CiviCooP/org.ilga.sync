@@ -23,7 +23,8 @@ class CRM_Sync_Message {
     'nick_name',
     'email',
     'website',
-    'address'
+    'address',
+    'membertype',
   ];
 
   private static function completeAndRestrict($params,$fields) {
