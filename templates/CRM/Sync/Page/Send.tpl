@@ -18,8 +18,8 @@
 <table cellpadding="0" cellspacing="0" border="0">
     <tr class="columnheader">
         <th>Name</th>
-        <th>Local</th>
-        <th>Remote</th>
+        <th>{$localHeader}</th>
+        <th>{$remoteHeader}</th>
         <th>Merged</th>
     </tr>
     {foreach from=$localContact key=mkey item=mfield}
@@ -32,7 +32,6 @@
                     <td>{$mergeContact[$mkey][$akey]}</td>
                 </tr>
             {/foreach}
-
         {else}
         <tr>
             <td>{$mkey}</td>

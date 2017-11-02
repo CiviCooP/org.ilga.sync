@@ -17,8 +17,11 @@ class CRM_Sync_Page_Send extends CRM_Core_Page {
     $config = CRM_Sync_Config::singleton();
     $region = $config->get('ilgasync_destination')=='region';
 
-    switch($syncaction){
+    $this->assign('localHeader',$region?'Europe':'World');
+    $this->assign('remoteHeader',$region?'World':'Europe');
 
+
+    switch($syncaction){
       case 'send' :
         $result = civicrm_api3('Sync','send',array('contact_id' => $contactId));
         break;
@@ -27,7 +30,6 @@ class CRM_Sync_Page_Send extends CRM_Core_Page {
         $remoteContact = CRM_Sync_Message::retrieve($contactId);
         CRM_Sync_Message::process($remoteContact);
         break;
-
     }
 
     $this->assign('action',$syncaction);
