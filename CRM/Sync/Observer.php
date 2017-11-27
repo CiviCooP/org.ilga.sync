@@ -99,17 +99,27 @@ class CRM_Sync_Observer {
    * @param $emailId
    */
   public function observeEmail($emailObject){
-  //  $contactId = $emailObject->contact_id;
-  //  if($this->subscribed($contactId)) {
-  //    $this->tag($contactId);
-  //  }
+    $contactId = $emailObject->contact_id;
+    if(isset($contactId) && $this->subscribed($contactId)) {
+      $this->tag($contactId);
+    }
   }
 
   /**
    * @param $websiteId
    */
-  public function observeWebsite($websiteId){
+  public function observeWebsite($websiteObject){
+    $contactId = $websiteObject->contact_id;
+    if(isset($contactId) && $this->subscribed($contactId)) {
+      $this->tag($contactId);
+    }
+  }
 
+  public function observeAddress($addressObject){
+    $contactId = $addressObject->contact_id;
+    if(isset($contactId) && $this->subscribed($contactId)) {
+      $this->tag($contactId);
+    }
   }
 
   public function subscribed($contactId){

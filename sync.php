@@ -178,4 +178,12 @@ function sync_civicrm_post($op, $objectName, $objectId, &$objectRef){
   if($objectName=='Email'&&$op=='edit') {
     $obs->observeEmail($objectRef);
   }
+
+  if($objectName=='Website'&&$op=='edit') {
+    $obs->observeWebsite($objectRef);
+  }
+
+  if($objectName=='Address'&&$op=='edit') {
+    $obs->observeAddress($objectRef);
+  }
 }
