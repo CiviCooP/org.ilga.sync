@@ -14,7 +14,7 @@ class CRM_Sync_Message {
     'supplemental_address_2',
     'city',
     'postal_code',
-    'country_id'
+    'country'
   ];
 
   static $_messagefields = [
@@ -233,17 +233,17 @@ class CRM_Sync_Message {
   }
 
   private static function readAddress($contactId){
-
     $result = civicrm_api3('Address', 'get', array(
       'contact_id' => $contactId,
       'is_primary' => 1,
     ));
-
     if ($result['count'] == 0) {
       return FALSE;
     }
     else  {
-      return $result['values'][$result['id']];
+      $address = $result['values'][$result['id']];
+      $address['country'] = CRM_Core_PseudoConstant::countryIsoCode($address['country_id']);
+      return $address;
     }
   }
 
@@ -253,6 +253,7 @@ class CRM_Sync_Message {
     if ($local) {
       if ($address) {
         if (!CRM_Sync_Message::addressSame($address, $local)) {
+
           civicrm_api3('Address', 'create', array('id' => $local['id']) + $address);
         }
         else {
