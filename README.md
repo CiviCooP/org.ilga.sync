@@ -11,13 +11,17 @@
 
 ### Message
 
-contact.name
+| field | description |
+| --- | --- |
+| ilga_id | Unique identifier that is the same in both databases. In the world database its the CiviCRM id. In the Europe database, it is a custom field on contacts|
 
 ## Application Programmatic Interface (api)
 
 ## User interface
 
 ### Settings
+This extension has an own preference screen. Go to *Administer* | *System Settings* | *Ilga Synchronization* or directly
+to the url: _http://<host>/civicrm/admin/sync_
 
 ### Manual Push
 
