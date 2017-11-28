@@ -9,9 +9,7 @@
  */
 function _civicrm_api3_sync_Send_spec(&$spec) {
   $spec['contact_id']['api.required'] = 1;
-
 }
-
 /**
  * Sync.Send API
  *

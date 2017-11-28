@@ -1,7 +1,6 @@
 <?php
 /**
- *
- * <add a short description>
+ *  Automatic installation of option groups
  *
  *  @author Klaas Eikelbooml (CiviCooP) <klaas.eikelboom@civicoop.org>
  *  @date 25-10-17 14:01

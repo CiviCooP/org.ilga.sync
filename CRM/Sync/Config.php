@@ -8,7 +8,6 @@
  * @license AGPL-3.0
  *
  */
-
 class CRM_Sync_Config {
 
   /* singleton that stores all the vars */
@@ -91,6 +90,8 @@ class CRM_Sync_Config {
       throw new Exception('Could not find tagId in' . __FILE__ . ' on line' . __LINE__);
     }
 
+    /* Although CiviCRM 4.7 has service to read settings directly, it cannot be used
+       because the code must also work in 4.6. So it is red from the database */
     $dao = CRM_Core_DAO::executeQuery("select name,value from civicrm_setting WHERE name like 'ilga%'");
     while($dao->fetch()){
       $this->_ilgaSyncSettings[$dao->name] = unserialize($dao->value);

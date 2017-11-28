@@ -1,6 +1,8 @@
 <?php
 /**
- *  Form controller class for the preference form
+ *  Form controller class for the preference form. By subclassing
+ *  CRM_Admin_Form_Preferences the settings loading and saving
+ *  are done automatically.
  *
  *  @see https://wiki.civicrm.org/confluence/display/CRMDOC/QuickForm+Reference
  *
@@ -11,6 +13,7 @@
  */
 class CRM_Sync_Form_Preferences  extends CRM_Admin_Form_Preferences {
 
+  /* helper functions for the selection list of the locations */
   private function locationTypes(){
     $locationTypes = array();
     $result = civicrm_api3('LocationType', 'get');
@@ -20,6 +23,7 @@ class CRM_Sync_Form_Preferences  extends CRM_Admin_Form_Preferences {
     return $locationTypes;
   }
 
+  /* helper function for the selection lists */
   private function optionValues($groupName){
     $optionValues = array();
     $result = civicrm_api3('OptionValue', 'get', array(
@@ -31,6 +35,7 @@ class CRM_Sync_Form_Preferences  extends CRM_Admin_Form_Preferences {
     return $optionValues;
   }
 
+  /* here alle the settings are defined - every setting starts with 'ilga' */
   public function preProcess() {
     CRM_Utils_System::setTitle(ts('Ilga Synchronization Component Settings'));
     $this->_varNames = array(

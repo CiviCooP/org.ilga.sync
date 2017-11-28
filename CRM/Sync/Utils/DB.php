@@ -7,7 +7,6 @@
  *  @license AGPL-3.0
  *
  */
-
 class CRM_Sync_Utils_DB {
 
   /**
@@ -60,6 +59,8 @@ class CRM_Sync_Utils_DB {
   }
 
   /**
+   * Find the region of a contact (using the primary address).
+   * But a contact does not always have region.
    * @param $contactId
    *
    * @return null|string

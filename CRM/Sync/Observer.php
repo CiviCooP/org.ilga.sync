@@ -32,6 +32,7 @@ class CRM_Sync_Observer {
   }
 
   /**
+   * Helper function that tags a contact with a sync tag
    * @param $contactId
    */
   public function tag($contactId){
@@ -46,6 +47,7 @@ class CRM_Sync_Observer {
   }
 
   /**
+   * Helper function that removes the sync tag.
    * @param $contactId
    */
   public function untag($contactId) {

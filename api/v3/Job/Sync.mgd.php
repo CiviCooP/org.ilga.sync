@@ -12,7 +12,7 @@ return array (
     array (
       'version' => 3,
       'name' => 'Call Job.Sync API',
-      'description' => 'Call Job.Sync API',
+      'description' => 'Run the ILGA Synchronization',
       'run_frequency' => 'Hourly',
       'api_entity' => 'Job',
       'api_action' => 'Sync',

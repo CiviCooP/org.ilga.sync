@@ -1,7 +1,7 @@
 <?php
 /**
  *
- * <add a short description>
+ * Tests for the observer class
  *
  *  @author Klaas Eikelboom (CiviCooP) <klaas.eikelboom@civicoop.org>
  *  @date 25-10-17 14:11
@@ -36,7 +36,7 @@ class CRM_Sync_ObserverTest extends \PHPUnit_Framework_TestCase implements  Head
     ));
   }
 
-  public function testFirst(){
+  public function testContactCreatedCorrect(){
     $this->assertNotEmpty($this->_contactId);
   }
 

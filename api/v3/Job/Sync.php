@@ -65,5 +65,5 @@ function civicrm_api3_job_Sync($params) {
     ('count' => $count,
      'errorcount' => $errorcount,
      'errors' => $errors),
-    'Did run a synchronize job', 'Job', 'sync');
+    'Runned the Ilga Synchronization Job', 'Job', 'sync');
 }
