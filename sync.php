@@ -159,11 +159,11 @@ function sync_civicrm_preProcess($formName, &$form) {
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_navigationMenu
  */
 function sync_civicrm_navigationMenu(&$menu) {
-  _sync_civix_insert_navigation_menu($menu, NULL, array(
-    'label' => ts('Ilga Sync Settings', array('domain' => 'org.ilga.sync')),
+  _sync_civix_insert_navigation_menu($menu, 'Administer/System Settings', array(
+    'label' => ts('Ilga Synchronization', array('domain' => 'org.ilga.sync')),
     'name' => 'ilga_sync_settings',
     'url' => 'civicrm/admin/sync',
-    'permission' => 'access CiviReport,access CiviContribute',
+    'permission' => 'administer CiviCRM',
     'operator' => 'OR',
     'separator' => 0,
   ));
