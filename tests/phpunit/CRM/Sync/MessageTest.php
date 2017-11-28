@@ -1,7 +1,7 @@
 <?php
 /**
  *
- * <add a short description>
+ * Test sets used to test certain asspects of the message class
  *
  *  @author Klaas Eikelbooml (CiviCooP) <klaas.eikelboom@civicoop.org>
  *  @date 24-10-17 12:34
@@ -54,16 +54,15 @@ class CRM_Sync_MessageTest extends \PHPUnit_Framework_TestCase implements  Headl
       $old['organization_name']='Oud';
       $new['organization_name']='New';
 
-      $this->assertEquals(CRM_Sync_Message::diff($old,$new),"<p> Differences between old and new are: </p><p>organization_name was Oud and becomes New</p>");
+      $this->assertEquals(CRM_Sync_Message::diff($old,$new),"<p>organization_name was Oud and becomes New</p>");
       $new['organization_name']='';
-      $this->assertEquals(CRM_Sync_Message::diff($old,$new),"<p> Differences between old and new are: </p><p>organization_name was Oud and becomes </p>");
+      $this->assertEquals(CRM_Sync_Message::diff($old,$new),"<p>organization_name was Oud and becomes </p>");
       $new['organization_name']='Oud';
-      $this->assertEquals(CRM_Sync_Message::diff($old,$new),"<p> Differences between old and new are: </p>");
+      $this->assertEquals(CRM_Sync_Message::diff($old,$new),"");
       $new['organization_name']=null;
-      $this->assertEquals(CRM_Sync_Message::diff($old,$new),"<p> Differences between old and new are: </p><p>organization_name was Oud and becomes </p>");
+      $this->assertEquals(CRM_Sync_Message::diff($old,$new),"<p>organization_name was Oud and becomes </p>");
       $old['organization_name']=null;
-      $this->assertEquals(CRM_Sync_Message::diff($old,$new),"<p> Differences between old and new are: </p>");
-
+      $this->assertEquals(CRM_Sync_Message::diff($old,$new),"");
     }
 
 
