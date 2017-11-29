@@ -1,6 +1,6 @@
 <?php
 /**
- *  Helper functions to information.
+ *  Helper functions to find information in the database using a known id.
  *
  *  @author Klaas Eikelbooml (CiviCooP) <klaas.eikelboom@civicoop.org>
  *  @date 22-10-17 14:40
@@ -32,7 +32,8 @@ class CRM_Sync_Utils_DB {
   }
 
   /**
-   *  Find the contact id with the ilga id. This is only defined in the region
+   *  Find the contact id with the ilga id. This makes only sense
+   *  in the region
    *  If the ilga id is not found an empty value is returned.
    *
    * @param $ilgaId
@@ -76,8 +77,10 @@ class CRM_Sync_Utils_DB {
     ));
   }
 
+  /* Find the local contact id using the ilga id
+     In the headquarters the ilga is the local id
+  */
   public static function findLocalId($ilgaId){
-
     $config = CRM_Sync_Config::singleton();
     if($config->get('ilgasync_destination')=='hq'){
       return $ilgaId;
