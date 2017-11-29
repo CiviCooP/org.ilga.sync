@@ -106,13 +106,6 @@ class CRM_Sync_Form_Preferences  extends CRM_Admin_Form_Preferences {
          'weight' => 11,
          'description' => ts('Url type for the main website'),
        ),
-       'ilgasync_default_facebook' =>  array (
-         'html_type' => 'select',
-         'title' => ts('Default Facebook'),
-         'option_values' =>  $this->optionValues('website_type'),
-         'weight' => 12,
-         'description' => ts('Url type for the facebook site'),
-       ),
       ),
     );
     parent::preProcess();
