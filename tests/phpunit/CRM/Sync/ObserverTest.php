@@ -25,14 +25,13 @@ class CRM_Sync_ObserverTest extends \PHPUnit_Framework_TestCase implements  Head
       'contact_type' => 'Organization',
       'organization_name' => 'Diverse Negosie'
     ));
-
     $this->_contactId = $result['id'];
-
   }
 
   public function tearDown() {
     civicrm_api3('contact','delete',array(
-      'id' => $this->_contactId
+      'id' => $this->_contactId,
+      'skip_undelete' => 1,
     ));
   }
 
