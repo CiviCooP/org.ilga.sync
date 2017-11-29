@@ -1,6 +1,8 @@
 <?php
 /**
- *  Utility class to to the restcal.
+ *  Utility class to to the execute a rest call. Includes the option
+ *  to do a mock call where the results of the rest call are not
+ *  sent but stored in an array (usable for testing purposes)
  *
  *  @author Klaas Eikelbooml (CiviCooP) <klaas.eikelboom@civicoop.org>
  *  @date 22-10-17 16:41
@@ -8,6 +10,30 @@
  *
  */
 class CRM_Sync_Utils_Rest {
+
+  private static $_mock;
+
+  private static function pushMock($action,$params,$url){
+    if(!isset(self::$_mock)){
+      self::$_mock = array();
+    }
+    self::$_mock[] = array(
+      'action' => $action,
+      'params'  => $params,
+      'url'    => $url,
+    );
+  }
+
+  public static function getMock(){
+    if(!isset(self::$_mock)){
+      self::$_mock = array();
+    }
+    return self::$_mock;
+  }
+
+  public static function forget(){
+    self::$_mock = array();
+  }
 
   public static function call($action,$params){
 
@@ -23,19 +49,26 @@ class CRM_Sync_Utils_Rest {
 
     $callUrl= "{$url}?entity=Sync&action={$action}&api_key={$apiKey}&key={$siteKey}&json={$json}";
 
-    $curl = curl_init();
-    curl_setopt($curl, CURLOPT_PUT, 1);
-    curl_setopt($curl, CURLOPT_URL,$callUrl);
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-    $curlresult = curl_exec($curl);
-
-    if (curl_errno($curl)) {
-      curl_close ($curl);
-      throw new Exception('Call failed locally with the folling Curl error :' . curl_error($curl));
+    if(isset($params['mock'])&&$params['mock']){
+      self::pushMock($action,$params,$callUrl);
+      return 'mocked';
     } else {
-      curl_close ($curl);
+
+      $curl = curl_init();
+      curl_setopt($curl, CURLOPT_PUT, 1);
+      curl_setopt($curl, CURLOPT_URL, $callUrl);
+      curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+      $curlresult = curl_exec($curl);
+
+      if (curl_errno($curl)) {
+        curl_close($curl);
+        throw new Exception('Call failed locally with the folling Curl error :' . curl_error($curl));
+      }
+      else {
+        curl_close($curl);
+      }
+      $result = json_decode($curlresult, TRUE);
+      return $result;
     }
-    $result = json_decode($curlresult,TRUE);
-    return $result;
   }
 }
