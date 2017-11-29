@@ -99,11 +99,24 @@ class CRM_Sync_Config {
 
   }
 
+  /* get function retrieves the setting from the global array
+     keys that do not exist in the database should return an error
+  */
   public function get($setting){
     if(!array_key_exists($setting,$this->_ilgaSyncSettings)){
       throw new Exception('Ilga Sync Setting '.$setting.' is not found');
     }
     return $this->_ilgaSyncSettings[$setting];
+  }
+
+  /* In a test situation it is often needed to alter a setting to simulate a configuration
+   * set, this can be done with this function
+   */
+  public function setForTest($setting,$value){
+    if(!array_key_exists($setting,$this->_ilgaSyncSettings)){
+      throw new Exception('Ilga setting not '.$setting.' is not found (Exception comes form setForTest');
+    }
+    $this->_ilgaSyncSettings[$setting]=$value;
   }
 
   /**
