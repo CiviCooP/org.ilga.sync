@@ -11,7 +11,10 @@
  *  @license AGPL-3.0
  *
  */
-class CRM_Sync_Form_Preferences  extends CRM_Admin_Form_Preferences {
+class CRM_Sync_Form_Preferences  extends CRM_Core_Form {
+
+  private $keys = ['ilgasync_destination','ilgasync_url','ilgasync_region','ilgasync_apikey',
+     'ilgasync_sitekey','ilgasync_dryrun','ilgasync_default_address','ilgasync_default_phone','ilgasync_default_email','ilgasync_default_website'];
 
   /* helper functions for the selection list of the locations */
   private function locationTypes(){
@@ -35,89 +38,83 @@ class CRM_Sync_Form_Preferences  extends CRM_Admin_Form_Preferences {
     return $optionValues;
   }
 
-  /* here alle the settings are defined - every setting starts with 'ilga' */
-  public function preProcess() {
-    CRM_Utils_System::setTitle(ts('Ilga Synchronization Component Settings'));
-    $this->_varNames = array(
-     'Ilga Synchronization' => array(
-        'ilgasync_destination' => array(
-          'html_type' => 'radio',
-          'title' => ts('Is this instance the HQ'),
-          'weight' => 1,
-          'description' => ts('The HQ instance contains all the contacts, the region just a subset'),
-        ),
-        'ilgasync_region' =>  array (
-          'html_type' => 'select',
-          'title' => ts('Region to sync to'),
-          'option_values' => array('' => ts('- select -')) + CRM_Core_PseudoConstant::worldRegion(),
-          'weight' => 2,
-          'description' => ts('Description of the region'),
-        ),
-       'ilgasync_url' =>  array (
-         'html_type' => 'text',
-         'title' => ts('Remote REST Api URL'),
-         'size'  => 64,
-         'weight' => 3,
-         'description' => ts('Example https://example.com/sites/all/modules/civicrm/extern/rest.php'),
-       ),
-       'ilgasync_apikey' =>  array (
-         'html_type' => 'text',
-         'title' => ts('Api Key'),
-         'weight' => 4,
-         'description' => ts('Api key of the user used of the sync'),
-       ),
-       'ilgasync_sitekey' =>  array (
-         'html_type' => 'text',
-         'title' => ts('Site Key'),
-         'weight' => 5,
-         'description' => ts('Site key (can be found in the civicrm.settings.php file'),
-       ),
-       'ilgasync_dryrun' =>  array (
-         'html_type' => 'checkbox',
-         'title' => ts('Dry Run'),
-         'weight' => 6,
-         'description' => ts('Do not send the data, show only what is send (not active)'),
-       ),
-       'ilgasync_default_address' =>  array (
-         'html_type' => 'select',
-         'title' => ts('Default Address'),
-         'option_values' => $this->locationTypes(),
-         'weight' => 7,
-         'description' => ts('Address type used when a new address is created'),
-       ),
-       'ilgasync_default_phone' =>  array (
-         'html_type' => 'select',
-         'title' => ts('Default Phone'),
-         'option_values' => $this->locationTypes(),
-         'weight' => 9,
-         'description' => ts('Phone type used when a new phone is inserted'),
-       ),
-       'ilgasync_default_email' =>  array (
-         'html_type' => 'select',
-         'title' => ts('Default Email'),
-         'option_values' => $this->locationTypes(),
-         'weight' => 10,
-         'description' => ts('Email type used when a new email is inserted'),
-       ),
-       'ilgasync_default_website' =>  array (
-         'html_type' => 'select',
-         'title' => ts('Default Website'),
-         'option_values' => $this->optionValues('website_type'),
-         'weight' => 11,
-         'description' => ts('Url type for the main website'),
-       ),
-      ),
-    );
-    parent::preProcess();
+  /**
+   * @return array|mixed|NULL
+   */
+  function setDefaultValues() {
+    parent::setDefaultValues();
+    foreach($this->keys as $key) {
+      $values[$key] = Civi::settings()->get($key);
+    }
+    return $values;
   }
 
   public function buildQuickForm() {
     parent::buildQuickForm();
+    $this->addRadio('ilgasync_destination',ts('Which instance is this?'),[
+       1 => 'World',
+       0 => 'Region - Europe'
+    ]);
+    $this->add('select','ilgasync_region','Region to sync to',CRM_Core_PseudoConstant::worldRegion());
+    $this->add('text','ilgasync_url','Remote REST Api URL',[
+      'placeholder' =>  ts('https://example.com/sites/all/modules/civicrm/extern/rest.php'),
+      'size' => 60
+    ]);
+    $this->add('text','ilgasync_apikey',ts('Api Key'),[
+      'size' => 58
+    ]);
+    $this->add('text','ilgasync_sitekey',ts('Site Key'),[
+      'size' => 58
+    ]);
+    $this->addRadio('ilgasync_dryrun',ts('Dry Run'),[
+      'Y'=> 'Only Testing',
+      'R'=>'Real Changes'
+    ]);
+    $this->add('select','ilgasync_default_address',ts('Default Address'),$this->locationTypes());
+    $this->add('select','ilgasync_default_phone',ts('Default Phone'),$this->locationTypes());
+    $this->add('select','ilgasync_default_email',ts('Default Email'),$this->locationTypes());
+    $this->add('select','ilgasync_default_website',ts('Default Website'),$this->optionValues('website_type'));
 
-    /* give the ilgasync url more space to enter data */
-    $idx = $this->_elementIndex['ilgasync_url'];
-    $this->_elements[$idx]->setSize(50);
-    $this->_elements[$idx]->setMaxLength(200);
+    $this->addButtons([
+      [
+        'type' => 'submit',
+        'name' => ts('Submit'),
+        'isDefault' => TRUE,
+      ],
+    ]);
+    $this->assign('elementNames', $this->getRenderableElementNames());
+  }
 
+  /**
+   *
+   */
+  function postProcess() {
+    $values = $this->exportValues();
+    foreach($this->keys as $key)
+    {
+      Civi::settings()->set($key,$values[$key]);
+    }
+    parent::postProcess();
+  }
+
+  /**
+   * Get the fields/elements defined in this form.
+   *
+   * @return array (string)
+   */
+  public function getRenderableElementNames() {
+    // The _elements list includes some items which should not be
+    // auto-rendered in the loop -- such as "qfKey" and "buttons".  These
+    // items don't have labels.  We'll identify renderable by filtering on
+    // the 'label'.
+    $elementNames = array();
+    foreach ($this->_elements as $element) {
+      /** @var HTML_QuickForm_Element $element */
+      $label = $element->getLabel();
+      if (!empty($label)) {
+        $elementNames[] = $element->getName();
+      }
+    }
+    return $elementNames;
   }
 }
