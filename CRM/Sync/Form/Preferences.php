@@ -52,8 +52,8 @@ class CRM_Sync_Form_Preferences  extends CRM_Core_Form {
   public function buildQuickForm() {
     parent::buildQuickForm();
     $this->addRadio('ilgasync_destination',ts('Which instance is this?'),[
-       1 => 'World',
-       0 => 'Region - Europe'
+       'hq' => 'World',
+       'region' => 'Region - Europe'
     ]);
     $this->add('select','ilgasync_region','Region to sync to',CRM_Core_PseudoConstant::worldRegion());
     $this->add('text','ilgasync_url','Remote REST Api URL',[

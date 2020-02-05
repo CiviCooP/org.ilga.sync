@@ -62,7 +62,7 @@ class CRM_Sync_Utils_Rest {
 
       if (curl_errno($curl)) {
         curl_close($curl);
-        throw new Exception('Call failed locally with the folling Curl error :' . curl_error($curl));
+        throw new Exception('Call failed locally with the following Curl error number :' . curl_errno($curl) . 'and message ' . curl_error($curl));
       }
       else {
         curl_close($curl);
