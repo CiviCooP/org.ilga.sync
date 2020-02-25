@@ -48,7 +48,7 @@ class CRM_Sync_Utils_DB {
 
       $config = CRM_Sync_Config::singleton();
 
-      $sql = "SELECT entity_id 
+      $sql = "SELECT entity_id
             FROM   {$config->getSynchronizationCustomGroupTableName()}
             WHERE  {$config->getIlgaIdentifierCustomFieldColumnName()} = %1";
 
@@ -68,7 +68,7 @@ class CRM_Sync_Utils_DB {
    */
   public static function findRegionId($contactId){
 
-    $sql = 'SELECT cnt.region_id FROM civicrm_country cnt 
+    $sql = 'SELECT cnt.region_id FROM civicrm_country cnt
             JOIN   civicrm_address adr ON (cnt.id = adr.country_id)
             WHERE  adr.contact_id = %1 AND adr.is_primary = 1';
 
@@ -80,6 +80,12 @@ class CRM_Sync_Utils_DB {
   /* Find the local contact id using the ilga id
      In the headquarters the ilga is the local id
   */
+  /**
+   * @param $ilgaId
+   *
+   * @return mixed
+   * @throws \Exception
+   */
   public static function findLocalId($ilgaId){
     $config = CRM_Sync_Config::singleton();
     if($config->get('ilgasync_destination')=='hq'){
@@ -89,6 +95,11 @@ class CRM_Sync_Utils_DB {
     }
   }
 
+  /**
+   * @param $contactId
+   *
+   * @return string
+   */
   public static function findMembershipType($contactId){
     $sql = "select 1 from civicrm_membership m
             join civicrm_membership_type t on (m.membership_type_id = t.id)
@@ -108,6 +119,20 @@ class CRM_Sync_Utils_DB {
       $result[] = 'Associated_members';
     }
     return implode(',',$result);
+  }
+
+  /**
+   * @param $contactId
+   *
+   * @return bool
+   * @throws \CiviCRM_API3_Exception
+   */
+  public static function isMember($contactId) {
+    $result = civicrm_api3('Contact', 'getsingle', [
+      'return' => ["contact_sub_type"],
+      'id' => $contactId,
+    ]);
+    return $result['contact_sub_type'] && in_array('Member_organisation', $result['contact_sub_type']);
   }
 
 }
